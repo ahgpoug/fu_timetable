@@ -10,6 +10,7 @@ public class Class_o implements Serializable{
     private String className;
     private String classNumber;
     private String classLecturer;
+    private String classExtra;
 
     public Class_o(String classTime, String classType, String classGroups, String className, String classNumber, String classLecturer, String classExtra){
         this.classTime = classTime;
@@ -18,6 +19,7 @@ public class Class_o implements Serializable{
         this.className = className;
         this.classNumber = classNumber;
         this.classLecturer = classLecturer;
+        this.classExtra = classExtra;
     }
 
     public String getClassTime() { return classTime; }
@@ -26,5 +28,5 @@ public class Class_o implements Serializable{
     public String getClassName() { return className; }
     public String getClassNumber() { return classNumber; }
     public String getClassLecturer() { return classLecturer; }
-
+    public String getClassExtra() { return classExtra; }
 }

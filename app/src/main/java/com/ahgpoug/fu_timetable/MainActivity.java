@@ -105,10 +105,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_sync) {
-            //ReadPDF readPdf = new ReadPDF();
-            //readPdf.execute();
-            PDFReader.getData(getApplicationInfo().dataDir);
-
+            ReadPDF readPdf = new ReadPDF();
+            readPdf.execute();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -129,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
+            PDFReader.getData(getApplicationInfo().dataDir);
             return null;
         }
 
@@ -136,7 +135,6 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             loadingDialog.dismiss();
-            Toast.makeText(getApplicationContext(), resultStr, Toast.LENGTH_LONG).show();
         }
     }
 }

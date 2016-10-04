@@ -1,63 +1,78 @@
 package com.ahgpoug.fu_timetable;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.util.Log;
 
+import com.ahgpoug.fu_timetable.Classes.Week;
+import com.opencsv.CSVReader;
 
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.AcroFields;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
-import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy;
-import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
-
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.StringReader;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 public class PDFReader {
-
-
-    public static String getData(String path, Context context) {
+    private static int cursor;
+    public static void getData(String path) {
         try {
-            PdfReader reader = new PdfReader(path + "//files//timetable.pdf");
-
-            PdfReaderContentParser parser = new PdfReaderContentParser(reader);
+            CSVReader reader = new CSVReader(new FileReader(path + "//files//timetable.csv"));
+            String[] nextLine;
 
             PrintWriter out = new PrintWriter(new FileOutputStream(path + "//files//result.txt"));
 
+            ArrayList<String[]> listOfLines = new ArrayList<String[]>();
 
-            TextExtractionStrategy strategy;
-
-            for (int i = 1; i <= reader.getNumberOfPages(); i++) {
-                strategy = parser.processContent(i, new SimpleTextExtractionStrategy());
-                out.println(strategy.getResultantText());
+            while ((nextLine = reader.readNext()) != null) {
+                listOfLines.add(nextLine);
             }
 
-            reader.close();
+            ArrayList<String> newListOfLines;
+            newListOfLines = parseLines(listOfLines);
+            for (String s : newListOfLines)
+            {
+                out.println(s.replaceAll("\\p{C}", " "));
+            }
             out.flush();
             out.close();
-
-            StringBuilder text = new StringBuilder();
-
-            BufferedReader br = new BufferedReader(new FileReader(path + "//files//result.txt"));
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                text.append(line);
-                text.append('\n');
-            }
-            br.close();
-
-            return "ok";
         } catch (IOException e){
             e.printStackTrace();
         }
-        return "error";
+    }
+
+    private static ArrayList<String> parseLines(ArrayList<String[]> listOfLines){
+        cursor = 0;
+        ArrayList<String> newListOfLines = new ArrayList<String>();
+
+        for (int i = 0; i < listOfLines.size(); i++){
+            String line = Arrays.toString(listOfLines.get(i));
+            newListOfLines.add(line.trim());
+        }
+        return newListOfLines;
+    }
+
+
+    private static String parseToSingleLine(ArrayList<String[]> listOfLines){
+        String resultStr = "";
+        for (int i = cursor; i < listOfLines.size(); i++){
+            String line = Arrays.toString(listOfLines.get(i));
+            resultStr += " ";
+            resultStr += line;
+            if (line.charAt(line.length() - 1) == ']') {
+                cursor = i;
+                break;
+            }
+        }
+        Log.e("MyTagResult", resultStr);
+        cursor++;
+        return resultStr;
     }
 }

@@ -67,10 +67,8 @@ public class MainActivity extends AppCompatActivity {
             @Override public void onPermissionGranted(PermissionGrantedResponse response) {
             }
             @Override public void onPermissionDenied(PermissionDeniedResponse response) {
-
             }
             @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
-
             }
         }, Manifest.permission.READ_EXTERNAL_STORAGE);
     }
@@ -107,8 +105,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_sync) {
-            ReadPDF readPdf = new ReadPDF();
-            readPdf.execute();
+            //ReadPDF readPdf = new ReadPDF();
+            //readPdf.execute();
+            PDFReader.getData(getApplicationInfo().dataDir);
+
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -129,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            resultStr = PDFReader.getData(getApplicationInfo().dataDir, MainActivity.this);
             return null;
         }
 

@@ -1,7 +1,5 @@
 package com.ahgpoug.fu_timetable;
 
-import android.content.Context;
-import android.content.res.AssetManager;
 import android.util.Log;
 
 import com.ahgpoug.fu_timetable.Classes.Class_o;
@@ -26,8 +24,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import static java.util.Arrays.asList;
-
 public class PDFReader {
     private static int position;
 
@@ -36,7 +32,6 @@ public class PDFReader {
             CSVReader reader = new CSVReader(new FileReader(path + "//files//timetable.csv"));
             String[] nextLine;
             ArrayList<String> newListOfLines;
-            PrintWriter out = new PrintWriter(new FileOutputStream(path + "//files//result.txt"));
             ArrayList<String[]> listOfLines = new ArrayList<String[]>();
 
             while ((nextLine = reader.readNext()) != null) {
@@ -44,16 +39,9 @@ public class PDFReader {
             }
 
             newListOfLines = parseLines(listOfLines);
-            /*for (String s : newListOfLines)
-            {
-                out.println(s);
-            }
-
-            out.flush();
-            out.close();*/
 
             setData(newListOfLines);
-
+            Serialization.Serialize();
 
         } catch (IOException e){
             e.printStackTrace();
@@ -85,7 +73,7 @@ public class PDFReader {
         do{
             line = listOfLines.get(position);
             header = line.substring(1, 11);
-            Log.e("MyLOG", String.valueOf(position) + " " + line);
+            Log.e("myTAG", line);
             if (position == 0){
                 weekList.add(readDay(position + 1, header, listOfLines));
             } else {
@@ -115,7 +103,7 @@ public class PDFReader {
                     weekList.add(readDay(position + 1, header, listOfLines));
                 }
             }
-        } while (position < listOfLines.size());
+        } while (position < listOfLines.size() - 1);
     }
 
     private static Day readDay(int start, String header, ArrayList<String> listOfLines){

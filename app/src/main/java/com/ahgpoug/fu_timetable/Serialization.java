@@ -27,8 +27,8 @@ public class Serialization {
 
             new File(Environment.getExternalStorageDirectory().getPath() + "/Android/data/com.ahgpoug.fu_timetable/files").mkdirs();
 
-            File fileR = new File(Environment.getExternalStorageDirectory().getPath() + "/Android/data/fu_timetable/files", "data.dat");
-            fileOut = new FileOutputStream(fileR);
+            File file = new File(Environment.getExternalStorageDirectory().getPath() + "/Android/data/com.ahgpoug.fu_timetable/files", "data.dat");
+            fileOut = new FileOutputStream(file);
             out = new ObjectOutputStream(fileOut);
             out.writeObject(GlobalVariables.mainList);
             out.close();

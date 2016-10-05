@@ -17,8 +17,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.lang.reflect.Array;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -48,7 +52,7 @@ public class PDFReader {
             out.flush();
             out.close();*/
 
-            readDay(1, "1 september", newListOfLines);
+            setData(newListOfLines);
 
 
         } catch (IOException e){
@@ -71,10 +75,47 @@ public class PDFReader {
 
     private static void setData(ArrayList<String> listOfLines){
         position = 0;
+        SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+        ArrayList<Day> weekList = new ArrayList<Day>();
+        GlobalVariables.mainList = new ArrayList<Week>();
 
-        for (int ln = 0; ln < listOfLines.size(); ln++){
-            String line = listOfLines.get(ln);
-        }
+        String header;
+        String line;
+
+        do{
+            line = listOfLines.get(position);
+            header = line.substring(1, 11);
+            Log.e("MyLOG", String.valueOf(position) + " " + line);
+            if (position == 0){
+                weekList.add(readDay(position + 1, header, listOfLines));
+            } else {
+                if (line.charAt(0) == '[' && line.charAt(line.length() - 1) == ']' && weekList.size() > 0) {
+                    try {
+                        Date prevDate = fmt.parse((weekList.get(weekList.size() - 1)).getDayDate());
+                        Date nextDate = fmt.parse(header);
+
+                        Calendar cal = Calendar.getInstance();
+
+                        cal.setTime(prevDate);
+                        int prevWeek = cal.get(Calendar.WEEK_OF_YEAR);
+
+                        cal.setTime(nextDate);
+                        int nextWeek = cal.get(Calendar.WEEK_OF_YEAR);
+
+                        if (prevWeek != nextWeek) {
+                            GlobalVariables.mainList.add(new Week((weekList.get(0).getDayDate() + " - " + weekList.get(weekList.size() - 1).getDayDate()), weekList));
+                            weekList.clear();
+                        } else {
+                            weekList.add(readDay(position + 1, header, listOfLines));
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    weekList.add(readDay(position + 1, header, listOfLines));
+                }
+            }
+        } while (position < listOfLines.size());
     }
 
     private static Day readDay(int start, String header, ArrayList<String> listOfLines){
@@ -83,6 +124,7 @@ public class PDFReader {
         ArrayList<Class_o> classList = new ArrayList<Class_o>();
 
         for (int i = start; i < listOfLines.size(); i++){
+            Log.e("MyLOG", String.valueOf(i));
             line = listOfLines.get(i);
             if ((line.charAt(0) == '[') && (line.charAt(line.length() - 1) == ']')){
                 position = i;
@@ -90,12 +132,14 @@ public class PDFReader {
             } else {
                 dayList.add(readClass(line));
             }
+
+            if (i == listOfLines.size() - 1)
+                position = i;
         }
 
         for (int i = 0; i < dayList.size(); i++){
             String[] a = dayList.get(i);
             classList.add(new Class_o(a[0].trim(), a[1].trim(), a[2].trim(), a[3].trim(), a[4].trim(), a[5].trim(), a[6].trim()));
-            Log.e("MyTag", a[0].trim() + ", " + a[1].trim() + ", " + a[2].trim() + ", " +  a[3].trim() + ", " + a[4].trim() + ", " + a[5].trim() + ", " + a[6].trim() + ", ");
         }
 
         Day day = new Day(header, classList);
@@ -121,7 +165,9 @@ public class PDFReader {
 
 
         newArr[0] = arr[0].substring(0, 11);
-        newArr[1] = arr[0].substring(12, arr[0].length());
+        newArr[1] = "";
+        if (arr[0].length() > 11)
+            newArr[1] = arr[0].substring(12, arr[0].length());
 
         newArr[2] = "";
         for (int i = 1; i < counter - 3; i++)

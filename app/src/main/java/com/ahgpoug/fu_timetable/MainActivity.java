@@ -13,6 +13,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,8 +35,8 @@ public class MainActivity extends AppCompatActivity {
 
     static final int PAGE_COUNT = 10;
 
-    ViewPager pager;
-    PagerAdapter pagerAdapter;
+    private ViewPager pager;
+    private PagerAdapter pagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         pager = (ViewPager) findViewById(R.id.pager);
         pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
         pager.setAdapter(pagerAdapter);
+
         Dexter.initialize(MainActivity.this);
     }
 
@@ -85,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return PageFragment.newInstance(position);
+            return PageFragment.newInstance(MainActivity.this, position);
         }
 
         @Override
@@ -118,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
 
     class ReadPDF extends AsyncTask<Void, Void, Void> {
         ProgressDialog loadingDialog;
-        String resultStr;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();

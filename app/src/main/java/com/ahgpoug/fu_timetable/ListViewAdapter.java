@@ -1,96 +1,69 @@
-/*package com.ahgpoug.fu_timetable;
+package com.ahgpoug.fu_timetable;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ahgpoug.fu_timetable.Classes.Class_o;
 import com.ahgpoug.fu_timetable.Classes.Day;
+import com.techsupportapp.UserProfileActivity;
+import com.techsupportapp.databaseClasses.Ticket;
+import com.techsupportapp.databaseClasses.User;
+import com.techsupportapp.utility.GlobalsMethods;
 
 import java.util.ArrayList;
 
-public class ListViewAdapter extends ArrayAdapter<Day> {
-    private static final int TYPE_1 = 0;
-    private static final int TYPE_2 = 1;
+public class ListViewAdapter extends ArrayAdapter<Class_o> {
 
     private final Context context;
-    private final ArrayList<Day> values;
-    private final ArrayList<Integer> arr;
+    private final ArrayList<Class_o> values;
 
-    public ListViewAdapter(Context context, ArrayList<Day> values) {
+    public ListViewAdapter(Context context, ArrayList<Class_o> values) {
         super(context, R.layout.item_class, values);
         this.context = context;
         this.values = values;
-        this.arr = new ArrayList<Integer>();
-        fillPositions();
-    }
-
-    private void fillPositions(){
-        int start = 0;
-        arr.add(0);
-        for (int i = 0; i < values.size() - 1; i++){
-            arr.add(start + values.get(i).getListOfClasses().size() + 1);
-        }
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        int type = getItemViewType(position);
-        int newPosition;
-        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        ArrayList<Integer> list1 = new ArrayList<Integer>();
-        ArrayList<ArrayList<Integer>> list2 = new ArrayList<ArrayList<Integer>>();
+        ViewHolder holder;
 
-        for (int i = 0; i < arr.size(); i++){
-            for (int j = 0; j < values.get(i).getListOfClasses().size(); j++)
-                list1.add(j);
-            list2.add(list1);
+        if (convertView == null) {
+            LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(R.layout.item_class, parent, false);
+            holder = new ViewHolder();
+
+            holder.classType = (TextView) convertView.findViewById(R.id.classType);
+            holder.classTime = (TextView) convertView.findViewById(R.id.classTime);
+            holder.className = (TextView) convertView.findViewById(R.id.className);
+            holder.classNumber = (TextView) convertView.findViewById(R.id.classNumber);
+            holder.classLecturer = (TextView) convertView.findViewById(R.id.classLecturer);
+            convertView.setTag(holder);
+        } else{
+            holder = (ViewHolder) convertView.getTag();
         }
 
-        for (int i = 0; i < list2.size(); i++)
-            if (list2.get(i).contains(position))
-                new
+        holder.classType.setText(values.get(position).getClassType());
+        holder.classTime.setText(values.get(position).getClassTime());
+        holder.className.setText(values.get(position).getClassName());
+        holder.classNumber.setText(values.get(position).getClassNumber());
+        holder.classLecturer.setText(values.get(position).getClassLecturer());
 
-        switch (type) {
-            case TYPE_1:
-                convertView = inflater.inflate(R.layout.item_header, null);
-
-                break;
-            case TYPE_2:
-                convertView = inflater.inflate(R.layout.item_class, null);
-
-                TextView classType = (TextView)convertView.findViewById(R.id.classType);
-                TextView classTime = (TextView)convertView.findViewById(R.id.classTime);
-                TextView className = (TextView)convertView.findViewById(R.id.className);
-                TextView classNumber = (TextView)convertView.findViewById(R.id.classNumber);
-                TextView classLecturer = (TextView)convertView.findViewById(R.id.classLecturer);
-
-                classType.setText(values.get());
-                break;
-            default:
-        }
 
         return convertView;
     }
 
-    @Override
-    public int getItemViewType(int position)
-    {
-        if (arr.contains(position))
-            return TYPE_1;
-        else
-            return TYPE_2;
-    }
+    static class ViewHolder {
+        private TextView classType;
+        private TextView classTime;
+        private TextView className;
+        private TextView classNumber;
+        private TextView classLecturer;
 
-    @Override
-    public int getViewTypeCount() {
-        return 2;
     }
-
-    @Override
-    public int getCount() {
-        return (values.size() + arr.size());
-    }
-}*/
+}

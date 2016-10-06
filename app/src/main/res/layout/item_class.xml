@@ -11,19 +11,21 @@
         android:layout_alignParentBottom="true"
         />
 
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
         android:paddingLeft="12dp"
         android:paddingRight="12dp"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
 
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_weight="1"
+            android:paddingTop="10dp"
             android:layout_height="wrap_content"
             android:minHeight="50dp"
             android:orientation="vertical"
@@ -74,10 +76,10 @@
                     android:layout_gravity="center_vertical"/>
 
                 <TextView
-                    android:id="@+id/classNumber"
-                    android:text="401"
+                    android:id="@+id/classGroups"
+                    android:text=""
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:textSize="20sp"
                     android:textColor="#3d3d3d"
@@ -90,7 +92,8 @@
                 android:id="@+id/bottom"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingBottom="10dp">
 
                 <TextView
                     android:id="@+id/classLecturer"
@@ -101,14 +104,15 @@
                     android:maxWidth="100dp"
                     android:layout_gravity="center_vertical"/>
 
+                <TextView
+                    android:id="@+id/classNumber"
+                    android:text="401"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:gravity="top|center_horizontal" />
+
             </LinearLayout>
         </RelativeLayout>
     </LinearLayout>
-
-    <View
-        android:layout_alignParentBottom="true"
-        android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:background="#e4e4e4"
-        />
 </RelativeLayout>

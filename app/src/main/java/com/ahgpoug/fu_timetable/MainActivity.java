@@ -2,10 +2,7 @@ package com.ahgpoug.fu_timetable;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -13,27 +10,24 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import com.ahgpoug.fu_timetable.Classes.Class_o;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
-import com.karumi.dexter.listener.single.PermissionListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    static final int PAGE_COUNT = 10;
+    public static ProgressDialog loadingDialog;
 
     private ViewPager pager;
     private PagerAdapter pagerAdapter;
@@ -43,15 +37,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Serialization.Deserialize();
+
+        setupLoadingDialog();
         initializeComponents();
         setEvents();
-        Serialization.Deserialize();
+        pager.setCurrentItem(getNowWeek());
     }
 
+    private void setupLoadingDialog(){
+        loadingDialog = new ProgressDialog(MainActivity.this);
+        loadingDialog.setMessage("Загрузка...");
+        loadingDialog.setCancelable(false);
+        loadingDialog.setInverseBackgroundForced(false);
+    }
     private void initializeComponents(){
         pager = (ViewPager) findViewById(R.id.pager);
         pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
         pager.setAdapter(pagerAdapter);
+        pagerAdapter.notifyDataSetChanged();
 
         Dexter.initialize(MainActivity.this);
     }
@@ -71,12 +75,36 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Dexter.checkPermissions(new MultiplePermissionsListener() {
+        /*Dexter.checkPermissions(new MultiplePermissionsListener() {
             @Override public void onPermissionsChecked(MultiplePermissionsReport report) {
             }
             @Override public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
             }
-        }, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);*/
+    }
+
+    private int getNowWeek(){
+        if (GlobalVariables.mainList.size() > 0){
+            SimpleDateFormat fmtIn = new SimpleDateFormat("dd/MM/yyyy");
+
+            for (int i = 0; i < GlobalVariables.mainList.size(); i++){
+                try {
+                    Date weekDate = fmtIn.parse(GlobalVariables.mainList.get(i).getWeekName().substring(0, 9));
+
+                    Calendar cal = Calendar.getInstance();
+                    int weekNow = cal.get(Calendar.WEEK_OF_YEAR);
+
+                    cal.setTime(weekDate);
+                    int weekNum = cal.get(Calendar.WEEK_OF_YEAR);
+
+                    if (weekNow == weekNum)
+                        return i;
+                } catch (ParseException e){
+                    e.printStackTrace();
+                }
+            }
+        }
+        return 0;
     }
 
     private class MyFragmentPagerAdapter extends FragmentStatePagerAdapter  {
@@ -92,12 +120,15 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return PAGE_COUNT;
+            return GlobalVariables.mainList.size();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return "Title " + position;
+            if (GlobalVariables.mainList.size() > 0)
+                return GlobalVariables.mainList.get(position).getWeekName();
+            else
+                return "";
         }
     }
 
@@ -118,15 +149,15 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
     class ReadPDF extends AsyncTask<Void, Void, Void> {
-        ProgressDialog loadingDialog;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            loadingDialog = new ProgressDialog(MainActivity.this);
-            loadingDialog.setMessage("Загрузка...");
-            loadingDialog.setCancelable(false);
-            loadingDialog.setInverseBackgroundForced(false);
             loadingDialog.show();
         }
 
@@ -139,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
+            pagerAdapter.notifyDataSetChanged();
             loadingDialog.dismiss();
         }
     }

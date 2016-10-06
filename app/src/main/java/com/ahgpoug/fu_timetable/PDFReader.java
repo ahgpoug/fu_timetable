@@ -7,14 +7,8 @@ import com.ahgpoug.fu_timetable.Classes.Day;
 import com.ahgpoug.fu_timetable.Classes.Week;
 import com.opencsv.CSVReader;
 
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,7 +57,7 @@ public class PDFReader {
 
     private static void setData(ArrayList<String> listOfLines){
         position = 0;
-        SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+        SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
         ArrayList<Day> weekList = new ArrayList<Day>();
         GlobalVariables.mainList = new ArrayList<Week>();
 
@@ -72,8 +66,8 @@ public class PDFReader {
 
         do{
             line = listOfLines.get(position);
+            Log.e("MyTAG", line);
             header = line.substring(1, 11);
-            Log.e("myTAG", line);
             if (position == 0){
                 weekList.add(readDay(position + 1, header, listOfLines));
             } else {
@@ -91,8 +85,9 @@ public class PDFReader {
                         int nextWeek = cal.get(Calendar.WEEK_OF_YEAR);
 
                         if (prevWeek != nextWeek) {
-                            GlobalVariables.mainList.add(new Week((weekList.get(0).getDayDate() + " - " + weekList.get(weekList.size() - 1).getDayDate()), weekList));
-                            weekList.clear();
+                            Week week = new Week((weekList.get(0).getDayDate() + " - " + weekList.get(weekList.size() - 1).getDayDate()), weekList);
+                            GlobalVariables.mainList.add(week);
+                            weekList = new ArrayList<Day>();
                         } else {
                             weekList.add(readDay(position + 1, header, listOfLines));
                         }
@@ -112,7 +107,6 @@ public class PDFReader {
         ArrayList<Class_o> classList = new ArrayList<Class_o>();
 
         for (int i = start; i < listOfLines.size(); i++){
-            Log.e("MyLOG", String.valueOf(i));
             line = listOfLines.get(i);
             if ((line.charAt(0) == '[') && (line.charAt(line.length() - 1) == ']')){
                 position = i;
@@ -127,7 +121,7 @@ public class PDFReader {
 
         for (int i = 0; i < dayList.size(); i++){
             String[] a = dayList.get(i);
-            classList.add(new Class_o(a[0].trim(), a[1].trim(), a[2].trim(), a[3].trim(), a[4].trim(), a[5].trim(), a[6].trim()));
+            classList.add(new Class_o(a[0].trim(), a[1].trim(), a[2].trim(), a[3].trim(), a[4].trim(), " " + a[5].trim(), a[6].trim()));
         }
 
         Day day = new Day(header, classList);
@@ -149,19 +143,32 @@ public class PDFReader {
             } else
                 data += c;
         }
-        arr[counter] = data;
+
+        int div;
+        if (!(counter > arr.length - 1)) {
+            div = 3;
+            arr[counter] = data;
+        } else {
+            counter--;
+            div = 4;
+            arr[counter] = data;
+        }
 
 
         newArr[0] = arr[0].substring(0, 11);
+        newArr[0] = newArr[0].replaceAll(" ", " - ");
         newArr[1] = "";
         if (arr[0].length() > 11)
             newArr[1] = arr[0].substring(12, arr[0].length());
 
         newArr[2] = "";
-        for (int i = 1; i < counter - 3; i++)
+        for (int i = 1; i < counter - div; i++)
             newArr[2] += arr[i];
 
-        newArr[3] = arr[counter - 2];
+        if (div == 3)
+            newArr[3] = arr[counter - 2];
+        else
+            newArr[3] = arr[counter - 1];
 
         String str = arr[counter];
         str = str.replaceAll("[^0-9]+", " ");
@@ -178,6 +185,11 @@ public class PDFReader {
             newArr[5] = arr[counter].replaceAll("\\d", "");
         else
             newArr[5] = arr[counter].replaceAll("\\d", "\n");
+
+        for (int i = 0; i < newArr[5].length(); i++)
+            newArr[5] = newArr[5].replaceAll("\n\n", "\n");
+
+
         newArr[6] = arr[counter - 1];
 
         return newArr;
